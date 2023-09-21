@@ -20,7 +20,7 @@ function createAccount(req,res){
     const body = req.body;
     console.log(body + " create account loop");
     if(req.body.valid){
-        myDAO.createAccount(util.genUUID(), body.username, body.password, body.is_admin)
+        myDAO.createAccount(util.genUUID(), body.username, body.password, body.role)
             .then((data) => {
                 res.send({
                     message: "Successfully Added Item!"

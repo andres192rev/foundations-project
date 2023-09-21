@@ -19,15 +19,15 @@ dynamoDB.listTables({}, (err, data) => {
 }); */
 
 
-function createAccount(uuid, username , password, is_admin){
-
+function createAccount(uuid, username , password, role ="employee"){
+    console.log("creating account  " +" "+username+" "+ password+" "+ role);
     const params = {
-        TableName: 'foundations_project1',
+        TableName: 'foundations_project_1',
         Item: {
             uuid,
             username,
             password,
-            is_admin
+            role
         }
     }
 
@@ -35,13 +35,16 @@ function createAccount(uuid, username , password, is_admin){
 };
 
 
-function login(username, password){
+
+
+function retrieveByUsername(username){
     const params = {
-        TableName: 'foundations_project1',
-        key:{
-            uuid
+        TableName: 'foundations_project_1',
+        Key: {
+            username
         }
     }
+
     return docClient.get(params).promise();
 }
 
@@ -49,5 +52,4 @@ function login(username, password){
 
 
 
-
-module.exports = {createAccount, login};
+module.exports = {createAccount,retrieveByUsername};
