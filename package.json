@@ -1,0 +1,16 @@
+{
+  "name": "foundations-project",
+  "version": "1.0.0",
+  "description": "foundations project due 9/29",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Andres Guzman",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.1461.0",
+    "body-parser": "^1.20.2",
+    "uuid": "^9.0.1"
+  }
+}
