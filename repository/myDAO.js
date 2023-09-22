@@ -148,6 +148,23 @@ function changeUserRole(username, role ){
     return docClient.update(params).promise();
 }
 
+function addImageToTicket(ticket_id, image ){
+    const params = {
+        TableName: "foundations_project_1",
+        Key:{
+            ticket_id
+        },
+        UpdateExpression: 'set #n = :value',
+        ExpressionAttributeNames:{
+            '#n': 'image'
+        },
+        ExpressionAttributeValues:{
+            ':value': image
+        }
+    }
+    return docClient.update(params).promise();
+}
+
 module.exports = {createAccount,retrieveByUsername, createTicket,
     getAllPendingTickets, updateTicket, getAllUserTickets,
-    getAllUserTicketsByCategory, changeUserRole};
+    getAllUserTicketsByCategory, changeUserRole, addImageToTicket };

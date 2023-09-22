@@ -169,6 +169,7 @@ app.put('/tickets', util.validateUpdateTicket, (req,res) => {
     util.verifyTokenAndReturnPayload(token)
         .then((payload) => {
             console.log(payload);
+            //lets a manager change the status of a ticket to approved or denied 
             if(payload.role === 'manager'){
                 //only continue if input has been validated
                 if(body.valid){
@@ -184,6 +185,28 @@ app.put('/tickets', util.validateUpdateTicket, (req,res) => {
                         message: `error with validating ticket`
                     })
                 }
+            }
+            //lets an employee to update their tickets with an image 
+            else if(payload.role === 'employee'){
+                console.log("about to add image to ticket " + ticket_id );
+                myDAO.addImageToTicket(ticket_id, body.image)
+                .then((data) => {
+                    const ticketObj = data.Item;
+                    console.log(ticketObj);
+                    res.send({
+                        message: `getting list: ${list}`
+                    })
+                })
+                .catch((err) => {
+                    console.error(err);
+                    res.statusCode = 401;
+                    res.send({
+                        message: "Failed to add Image"
+                    })
+                })
+            
+            
+            
             }else{
                 res.statusCode = 401;
                 res.send({
