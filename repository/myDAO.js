@@ -118,5 +118,20 @@ function getAllUserTickets(username){
     return docClient.scan(params).promise();
 }
 
+function getAllUserTicketsByCategory(category){
+    const params = {
+        TableName: "tickets",
+        FilterExpression: '#c = :value',
+        ExpressionAttributeNames: {
+            "#c": 'category'
+        },
+        ExpressionAttributeValues: {
+            ':value' : category
+        }
+    }
+    return docClient.scan(params).promise();
+}
+
 module.exports = {createAccount,retrieveByUsername, createTicket,
-    getAllPendingTickets, updateTicket, getAllUserTickets};
+    getAllPendingTickets, updateTicket, getAllUserTickets,
+    getAllUserTicketsByCategory};

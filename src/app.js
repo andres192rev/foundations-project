@@ -223,10 +223,42 @@ app.get('/tickets', (req,res) => {
 
 })
 
-//Gets all user tickets filtered by "Reimburesement Type"
-/* app.post('/tickets/type', (req,res) => {
-    const
-} ) */
+//Gets all user tickets filtered by "Category"
+app.post('/tickets/type', (req,res) => {
+    const token = req.headers.authorization.split(' ')[1]; // ['Bearer', '<token>'];
+
+    util.verifyTokenAndReturnPayload(token)
+    .then((payload) => {
+        if(payload.username === 'employee'){
+            myDAO.getAllUserTicketsByCategory(req.body.category)
+            .then((data) => {
+                const list = data.Items;
+                console.log(list);
+                res.send({
+                    message: `employee is getting list: ${list}`
+                })
+            })
+        }else{
+            res.statusCode = 401;
+            res.send({
+                message: `You are not a valid role, you are a ${payload.role}`
+            })
+        }
+    })
+    .catch((err) => {
+        console.error(err);
+        res.statusCode = 401;
+        res.send({
+            message: "Failed to Authenticate Token"
+        })
+    })
+
+
+
+
+
+
+} )
 
 app.listen(PORT, ()=> {
     console.log(`server is runnin on port ${PORT}`);
