@@ -1,3 +1,7 @@
+//////////////////////////////////////
+//////todo
+///////////service logic to not edit processed items 
+
 const express = require('express');
 const app = express();
 
@@ -83,7 +87,8 @@ app.post('/login',  (req,res) => {
         });
 } )
 
-
+//creates a ticket with neccessary params amount, description
+//adds ticket to database with additional params payload.username and the status 
 app.post('/tickets', util.validateNewTicket, (req, res) => {
     const token = req.headers.authorization.split(' ')[1]; // ['Bearer', '<token>'];
     body = req.body;
@@ -121,7 +126,11 @@ app.post('/tickets', util.validateNewTicket, (req, res) => {
         })
 })
 
-app.put('/ticket-manager', util.validateUpdateTicket, (req,res) => {
+
+//A manager, validated thorugh a jwt in the incoming request headers,
+//can update a tickets status to approved or denied using the 
+//tickets UUID
+app.put('/tickets', util.validateUpdateTicket, (req,res) => {
     const token = req.headers.authorization.split(' ')[1]; // ['Bearer', '<token>'];
     body = req.body;
     console.log("body is: " + body);
@@ -164,21 +173,63 @@ app.put('/ticket-manager', util.validateUpdateTicket, (req,res) => {
 
 
 //TODO: Service Logic
-app.get('/ticket-manager', (req,res) => {
-   const body = req.body;
-   
-   myDAO.getAllPendingTickets()
+/* 
+    Gets All pending tickets if user is manager
+    Gets all user tickets if user is employee
+*/
+app.get('/tickets', (req,res) => {
+    const token = req.headers.authorization.split(' ')[1]; // ['Bearer', '<token>'];
+    
+    
+    
+    util.verifyTokenAndReturnPayload(token)
+    .then((payload) => {
+        console.log(payload);
+        if(payload.role === "manager"){
+            myDAO.getAllPendingTickets()
+            .then((data) => {
+                 const list = data.Items; 
+                 console.log(list);
+                 res.send({
+                     message: `getting list: ${list}`
+                 })
+            })
+        }
+        else if(payload.role ==="employee"){
+            myDAO.getAllUserTickets(payload.username)
+            .then((data) => {
+                const list = data.Items;
+                console.log(list);
+                res.send({
+                    message: `employee is getting list: ${list}`
+                })
+            })
+            
+        }else{
+            res.statusCode = 401;
+            res.send({
+                message: `You are not a valid role, you are a ${payload.role}`
+            })
+        }
+    })
+    .catch((err) => {
+        console.error(err);
+        res.statusCode = 401;
+        res.send({
+            message: "Failed to Authenticate Token"
+        })
+    })
+
+})
+
+
+/* myDAO.getAllPendingTickets()
        .then((data) => {
             const list = data.Items; 
             console.log(list);
             res.send({
                 message: `getting list: ${list}`
-            })
-
-   })
-})
-
-
+            }) */
 app.listen(PORT, ()=> {
     console.log(`server is runnin on port ${PORT}`);
 });

@@ -101,5 +101,20 @@ function getAllPendingTickets(){
     return docClient.scan(params).promise();
 }
 
+function getAllUserTickets(username){
+    const params = {
+        TableName: "tickets",
+        FilterExpression: '#c = :value',
+        ExpressionAttributeNames: {
+            '#c': 'username'
+        },
+        ExpressionAttributeValues:{
+            ':value': username
+        }
+    }
+
+    return docClient.scan(params).promise();
+}
+
 module.exports = {createAccount,retrieveByUsername, createTicket,
-    getAllPendingTickets, updateTicket};
+    getAllPendingTickets, updateTicket, getAllUserTickets};
