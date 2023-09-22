@@ -33,6 +33,17 @@ function genUUID(){
     return id;
 }
 
+function validateNewTicket(req, res, next){
+    console.log("validating new ticket "  +" "+req.body.amount+" "+ req.body.description+" "+ req.body.status);
+    if(!req.body.amount || !req.body.description ){
+        req.body.valid = false;
+        next();
+    }else{
+        req.body.valid = true;
+        next();
+    }
+}
+
 function createJWT(username, role){
     return jwt.sign({
         username,
@@ -61,4 +72,5 @@ function verifyTokenAndReturnPayload(token){
 
 
 
-module.exports = {validateNewAccount, genUUID, validateLogin, verifyTokenAndReturnPayload, createJWT};
+module.exports = {validateNewAccount, genUUID, validateLogin,
+    validateNewTicket, verifyTokenAndReturnPayload, createJWT};

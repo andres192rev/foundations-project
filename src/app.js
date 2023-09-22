@@ -18,7 +18,6 @@ app.get('/hello', (req,res) =>{
 })
 
 
-
 app.post('/users', util.validateNewAccount, (req, res) => {
     const body = req.body;
     
@@ -26,12 +25,12 @@ app.post('/users', util.validateNewAccount, (req, res) => {
         myDAO.createAccount(util.genUUID(), body.username, body.password, body.role)
             .then((data) => {
                 res.send({
-                    message: "Successfully Added Item!"
+                    message: "Successfully created account!"
                 })
             })
             .catch((err) => {
                 res.send({
-                    message: "Failed to Add Item!"
+                    message: "Username already exists"
                 })
             })
     }else{
@@ -53,14 +52,16 @@ app.post('/login',  (req,res) => {
     // then validate if it has the correct password
     console.log(`looking for ${username}`);
  
+
+    //error correct here/////////////
     myDAO.retrieveByUsername(username)
         .then((data) => {
             const userItem = data.Item;
-            console.log("found user " + userItem.username);
+            
             if(password === userItem.password){
                 // successful login
                 // create the jwt
-                const token = util.createJWT(userItem.username);
+                const token = util.createJWT(userItem.username, userItem.role);
 
                 res.send({
                     message : "Successfully Authenticated",
@@ -80,6 +81,44 @@ app.post('/login',  (req,res) => {
             })
         });
 } )
+
+
+app.post('/tickets', util.validateNewTicket, (req, res) => {
+    const token = req.headers.authorization.split(' ')[1]; // ['Bearer', '<token>'];
+    body = req.body;
+    console.log("token " + token);
+    
+    util.verifyTokenAndReturnPayload(token)
+        .then((payload) => {
+            console.log(payload);
+            if(payload.role === 'employee'){
+                //only continue if input has been validated
+                if(body.valid){
+                    myDAO.createTicket(util.genUUID(), payload.username, body.amount, body.description, body.status);
+                    res.send({
+                    message: `${payload.username} created a ticket!`
+                })
+                }else{
+                    res.statusCode = 400;
+                    res.send({
+                        message: `error with validating ticket`
+                    })
+                }
+            }else{
+                res.statusCode = 401;
+                res.send({
+                    message: `You are not an employee, you are a ${payload.role}`
+                })
+            }
+        })
+        .catch((err) => {
+            console.error(err);
+            res.statusCode = 401;
+            res.send({
+                message: "Failed to Authenticate Token"
+            })
+        })
+})
 
 
 

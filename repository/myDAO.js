@@ -21,21 +21,21 @@ dynamoDB.listTables({}, (err, data) => {
 
 function createAccount(uuid, username , password, role ="employee"){
     console.log("creating account  " +" "+username+" "+ password+" "+ role);
+
     const params = {
         TableName: 'foundations_project_1',
+        ConditionExpression: 'attribute_not_exists(username)',
         Item: {
             uuid,
             username,
             password,
             role
         }
+
     }
 
     return docClient.put(params).promise();
 };
-
-
-
 
 function retrieveByUsername(username){
     const params = {
@@ -49,7 +49,20 @@ function retrieveByUsername(username){
 }
 
 
+function createTicket(ticket_id, username, amount, description, status = "pending"){
+ 
+    const params = {
+        TableName: 'tickets',
+        Item: {
+            ticket_id,
+            username,
+            amount,
+            description,
+            status
+        }
+    }
+    return docClient.put(params).promise();
+}
 
 
-
-module.exports = {createAccount,retrieveByUsername};
+module.exports = {createAccount,retrieveByUsername, createTicket};
