@@ -64,5 +64,33 @@ function createTicket(ticket_id, username, amount, description, status = "pendin
     return docClient.put(params).promise();
 }
 
+function manageTicket(ticket_id, username, status, processed){
+    const params = {
+        TableName: 'tickets',
+        Item: {
+            ticket_id,
+            username,
+            status,
+            processed
+        }
+    }
+    return docClient.put(params).promise();
+}
 
-module.exports = {createAccount,retrieveByUsername, createTicket};
+function getAllPendingTickets(){
+    const params = {
+        TableName: "tickets",
+        FilterExpression: '#c = :value',
+        ExpressionAttributeNames: {
+            '#c': 'status'
+        },
+        ExpressionAttributeValues:{
+            ':value': 'pending'
+        }
+    }
+
+    return docClient.scan(params).promise();
+}
+
+module.exports = {createAccount,retrieveByUsername, createTicket,
+    getAllPendingTickets, manageTicket};

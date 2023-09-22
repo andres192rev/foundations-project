@@ -120,6 +120,60 @@ app.post('/tickets', util.validateNewTicket, (req, res) => {
         })
 })
 
+app.post('/ticket-manager', (req,res) => {
+    const token = req.headers.authorization.split(' ')[1]; // ['Bearer', '<token>'];
+    body = req.body;
+    console.log("token " + token);
+    
+    util.verifyTokenAndReturnPayload(token)
+        .then((payload) => {
+            console.log(payload);
+            if(payload.role === 'manager'){
+                //only continue if input has been validated
+                if(body.valid){
+
+                    //todo
+                    myDAO.manageTicket(payload.username, payload.ticket_id, payload.processed, payload.status);
+                    res.send({
+                    message: `${payload.username}`
+                })
+                }else{
+                    res.statusCode = 400;
+                    res.send({
+                        message: `error with validating ticket`
+                    })
+                }
+            }else{
+                res.statusCode = 401;
+                res.send({
+                    message: `You are not an manager, you are a ${payload.role}`
+                })
+            }
+        })
+        .catch((err) => {
+            console.error(err);
+            res.statusCode = 401;
+            res.send({
+                message: "Failed to Authenticate Token"
+            })
+        })
+})
+
+
+//TODO: Service Logic
+app.get('/ticket-manager', (req,res) => {
+   const body = req.body;
+   
+   myDAO.getAllPendingTickets()
+       .then((data) => {
+            const list = data.Items; 
+            console.log(list);
+            res.send({
+                message: `getting list: ${list}`
+            })
+
+   })
+})
 
 
 app.listen(PORT, ()=> {
