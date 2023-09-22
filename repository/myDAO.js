@@ -49,7 +49,8 @@ function retrieveByUsername(username){
 }
 
 
-function createTicket(ticket_id, username, amount, description, status = "pending"){
+function createTicket(ticket_id, username, amount, 
+    description, status = "pending", category="none" ){
  
     const params = {
         TableName: 'tickets',
@@ -58,7 +59,8 @@ function createTicket(ticket_id, username, amount, description, status = "pendin
             username,
             amount,
             description,
-            status
+            status,
+            category
         }
     }
     return docClient.put(params).promise();

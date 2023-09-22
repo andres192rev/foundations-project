@@ -34,8 +34,8 @@ function genUUID(){
 }
 
 function validateNewTicket(req, res, next){
-    console.log("validating new ticket "  +" "+req.body.amount+" "+ req.body.description+" "+ req.body.status);
-    if(!req.body.amount || !req.body.description ){
+    console.log("validating new ticket "  +" "+req.body.amount+" "+ req.body.description+" "+ req.body.category);
+    if(!req.body.amount || !req.body.description  ){
         req.body.valid = false;
         next();
     }else{

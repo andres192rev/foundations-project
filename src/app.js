@@ -100,10 +100,11 @@ app.post('/tickets', util.validateNewTicket, (req, res) => {
             if(payload.role === 'employee'){
                 //only continue if input has been validated
                 if(body.valid){
-                    myDAO.createTicket(util.genUUID(), payload.username, body.amount, body.description, body.status);
+                    myDAO.createTicket(util.genUUID(), payload.username, body.amount
+                        ,body.description, body.status, body.category);
                     res.send({
-                    message: `${payload.username} created a ticket!`
-                })
+                        message: `${payload.username} created a ticket!`
+                    })
                 }else{
                     res.statusCode = 400;
                     res.send({
@@ -222,14 +223,11 @@ app.get('/tickets', (req,res) => {
 
 })
 
+//Gets all user tickets filtered by "Reimburesement Type"
+/* app.post('/tickets/type', (req,res) => {
+    const
+} ) */
 
-/* myDAO.getAllPendingTickets()
-       .then((data) => {
-            const list = data.Items; 
-            console.log(list);
-            res.send({
-                message: `getting list: ${list}`
-            }) */
 app.listen(PORT, ()=> {
     console.log(`server is runnin on port ${PORT}`);
 });
