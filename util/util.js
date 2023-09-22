@@ -44,6 +44,19 @@ function validateNewTicket(req, res, next){
     }
 }
 
+function validateUpdateTicket(req, res, next){
+    console.log("validating update ticket "  + req.body.ticket_id + " " + req.body.status);
+    tixStatus = req.body.status;
+    console.log(tixStatus);
+    if(!req.body.ticket_id || !((tixStatus === "denied") || (tixStatus === "approved")) ){
+        req.body.valid = false;
+        next();
+    }else{
+        req.body.valid = true;
+        next();
+    }
+}
+
 function createJWT(username, role){
     return jwt.sign({
         username,
@@ -73,4 +86,4 @@ function verifyTokenAndReturnPayload(token){
 
 
 module.exports = {validateNewAccount, genUUID, validateLogin,
-    validateNewTicket, verifyTokenAndReturnPayload, createJWT};
+    validateNewTicket, verifyTokenAndReturnPayload, createJWT, validateUpdateTicket};

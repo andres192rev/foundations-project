@@ -47,7 +47,8 @@ app.post('/users', util.validateNewAccount, (req, res) => {
 app.post('/login',  (req,res) => {
     const username = req.body.username;
     const password = req.body.password;
-
+    body = req.body;
+    console.log("body is: " + body);
     // we make a request to the database based on the username
     // then validate if it has the correct password
     console.log(`looking for ${username}`);
@@ -120,10 +121,12 @@ app.post('/tickets', util.validateNewTicket, (req, res) => {
         })
 })
 
-app.post('/ticket-manager', (req,res) => {
+app.put('/ticket-manager', util.validateUpdateTicket, (req,res) => {
     const token = req.headers.authorization.split(' ')[1]; // ['Bearer', '<token>'];
     body = req.body;
-    console.log("token " + token);
+    console.log("body is: " + body);
+    console.log("body.valid is: " + body.valid );
+    console.log("body.ticket_id is: " + body.ticket_id );
     
     util.verifyTokenAndReturnPayload(token)
         .then((payload) => {
@@ -133,9 +136,9 @@ app.post('/ticket-manager', (req,res) => {
                 if(body.valid){
 
                     //todo
-                    myDAO.manageTicket(payload.username, payload.ticket_id, payload.processed, payload.status);
+                    myDAO.updateTicket(body.ticket_id, body.status);
                     res.send({
-                    message: `${payload.username}`
+                    message: ` update ticket: ${body.ticket_id}`
                 })
                 }else{
                     res.statusCode = 400;

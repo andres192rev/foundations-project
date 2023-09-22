@@ -64,19 +64,28 @@ function createTicket(ticket_id, username, amount, description, status = "pendin
     return docClient.put(params).promise();
 }
 
-function manageTicket(ticket_id, username, status, processed){
+
+
+function updateTicket(ticket_id, status){
     const params = {
         TableName: 'tickets',
-        Item: {
-            ticket_id,
-            username,
-            status,
-            processed
+        Key: {
+            ticket_id
+        },
+        UpdateExpression: 'set #n = :value',
+        ExpressionAttributeNames:{
+            '#n': 'status'
+        },
+        ExpressionAttributeValues:{
+            ':value': status
         }
     }
-    return docClient.put(params).promise();
+    return docClient.update(params).promise();
 }
 
+
+//setup local secondary index to increase scan speed 
+//using same partition key  but different sort key on the field status
 function getAllPendingTickets(){
     const params = {
         TableName: "tickets",
@@ -93,4 +102,4 @@ function getAllPendingTickets(){
 }
 
 module.exports = {createAccount,retrieveByUsername, createTicket,
-    getAllPendingTickets, manageTicket};
+    getAllPendingTickets, updateTicket};
