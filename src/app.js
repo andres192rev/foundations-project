@@ -21,8 +21,36 @@ app.get('/hello', (req,res) =>{
     res.send("hello world");
 })
 
+//allows a manager to edit the role of a user 
+app.put('/user', (req, res) => {
+    const token = req.headers.authorization.split(' ')[1]; // ['Bearer', '<token>'];
+    const body = req.body;
+    util.verifyTokenAndReturnPayload(token)
+    .then((payload) => {
+        if(payload.role === 'manager'){
+            myDAO.changeUserRole(body.username, body.role);
+            res.send({
+                message: `${payload.username} changed ${body.username} role to ${body.role}`
+            }) 
+        }else{
+            res.statusCode = 400;
+            res.send({
+                message: `error with changing ${username} role to ${body.role}`
+            })
+        }
+    })
+    .catch((err) => {
+        console.error(err);
+        res.statusCode = 401;
+        res.send({
+            message: "Failed to Authenticate Token"
+        })
+    })
 
-app.post('/users', util.validateNewAccount, (req, res) => {
+})
+
+//creates new account and makes sure username and password are supplied 
+app.post('/user', util.validateNewAccount, (req, res) => {
     const body = req.body;
     
     if(req.body.valid){
@@ -253,7 +281,7 @@ app.post('/tickets/type', (req,res) => {
         })
     })
 
-
+app.post('/ch')
 
 
 

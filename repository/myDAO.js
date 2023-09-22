@@ -44,7 +44,6 @@ function retrieveByUsername(username){
             username
         }
     }
-
     return docClient.get(params).promise();
 }
 
@@ -132,6 +131,23 @@ function getAllUserTicketsByCategory(category){
     return docClient.scan(params).promise();
 }
 
+function changeUserRole(username, role ){
+    const params = {
+        TableName: "foundations_project_1",
+        Key:{
+            username
+        },
+        UpdateExpression: 'set #n = :value',
+        ExpressionAttributeNames:{
+            '#n': 'role'
+        },
+        ExpressionAttributeValues:{
+            ':value': role
+        }
+    }
+    return docClient.update(params).promise();
+}
+
 module.exports = {createAccount,retrieveByUsername, createTicket,
     getAllPendingTickets, updateTicket, getAllUserTickets,
-    getAllUserTicketsByCategory};
+    getAllUserTicketsByCategory, changeUserRole};
