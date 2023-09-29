@@ -7,18 +7,6 @@ const docClient = new AWS.DynamoDB.DocumentClient();
 
 
 
-/* // create a dynamoDB client
-const dynamoDB = new AWS.DynamoDB();
-// print a list of the tables
-dynamoDB.listTables({}, (err, data) => {
-    if(err){
-        console.error('Error', err);
-    }else{
-        console.log('Tables:', data.TableNames);
-    }
-}); */
-
-
 function createAccount(uuid, username , password, role ="employee"){
     console.log("creating account  " +" "+username+" "+ password+" "+ role);
 
@@ -49,7 +37,7 @@ function retrieveByUsername(username){
 
 
 function createTicket(ticket_id, username, amount, 
-    description, status = "pending", category="none" ){
+    description, ticket_status = "pending", category="none" ){
  
     const params = {
         TableName: 'tickets',
@@ -58,48 +46,55 @@ function createTicket(ticket_id, username, amount,
             username,
             amount,
             description,
-            status,
+            ticket_status,
             category
-        }
+        },
+        ReturnValues: "ALL_OLD"
     }
     return docClient.put(params).promise();
 }
 
 
-
-function updateTicket(ticket_id, status){
+//line 67 may be a problem  combine with AND
+function updateTicket(ticket_id, ticket_status){
     const params = {
         TableName: 'tickets',
         Key: {
             ticket_id
         },
         UpdateExpression: 'set #n = :value',
+        ConditionExpression: "attribute_exists(ticket_id)",
+        ConditionExpression: "contains (#i, :p)",
         ExpressionAttributeNames:{
-            '#n': 'status'
+            '#n': 'ticket_status',
+            "#i": 'ticket_status'
         },
         ExpressionAttributeValues:{
-            ':value': status
-        }
+            ':value': ticket_status,
+            ':p': 'pending'
+        },
+        ReturnValues: "ALL_NEW"
     }
     return docClient.update(params).promise();
 }
 
 
-//setup local secondary index to increase scan speed 
+//setup Global secondary index to increase scan speed 
 //using same partition key  but different sort key on the field status
 function getAllPendingTickets(){
     const params = {
         TableName: "tickets",
-        FilterExpression: '#c = :value',
+        IndexName:"ticket_status-index",
+        KeyConditionExpression: '#c = :value',
         ExpressionAttributeNames: {
-            '#c': 'status'
+            '#c': 'ticket_status'
         },
         ExpressionAttributeValues:{
             ':value': 'pending'
         }
     }
 
-    return docClient.scan(params).promise();
+    return docClient.query(params).promise();
 }
 
 function getAllUserTickets(username){
@@ -117,15 +112,18 @@ function getAllUserTickets(username){
     return docClient.scan(params).promise();
 }
 
-function getAllUserTicketsByCategory(category){
+function getAllUserTicketsByCategory(category, username){
     const params = {
         TableName: "tickets",
-        FilterExpression: '#c = :value',
+        FilterExpression: '#c = :value AND #u = :name',
+        
         ExpressionAttributeNames: {
-            "#c": 'category'
+            "#c": 'category',
+            "#u": 'username'
         },
         ExpressionAttributeValues: {
-            ':value' : category
+            ':value' : category,
+            ':name' : username
         }
     }
     return docClient.scan(params).promise();
@@ -138,6 +136,7 @@ function changeUserRole(username, role ){
             username
         },
         UpdateExpression: 'set #n = :value',
+        ConditionExpression: "attribute_exists(username)",
         ExpressionAttributeNames:{
             '#n': 'role'
         },
@@ -164,6 +163,29 @@ function addImageToTicket(ticket_id, image ){
     }
     return docClient.update(params).promise();
 }
+
+/* function editAccount(username){
+    const params = {
+        TableName: 'foundations_project_1',
+        Key: {
+            username
+        },
+        UpdateExpression: 'set #n = :value',
+        ConditionExpression: "attribute_exists(username)",
+        ConditionExpression: "contains (#i, :p)",
+        ExpressionAttributeNames:{
+            '#n': 'ticket_status',
+            "#i": 'ticket_status'
+        },
+        ExpressionAttributeValues:{
+            ':value': ticket_status,
+            ':p': 'pending'
+        },
+        ReturnValues: "ALL_NEW"
+    }
+    return docClient.update(params).promise();
+}
+ */
 
 module.exports = {createAccount,retrieveByUsername, createTicket,
     getAllPendingTickets, updateTicket, getAllUserTickets,
